@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ระบบประเมิน FC PN</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f4f6f9;font-family:system-ui,sans-serif}#appFrame{position:fixed;inset:0;width:100%;height:100dvh;border:0;display:block}#notice{position:fixed;z-index:5;left:16px;right:16px;top:16px;background:#fff3cd;color:#664d03;padding:16px;border-radius:8px}#notice[hidden]{display:none}</style></head><body><div id="notice" hidden role="alert"></div><iframe id="appFrame" title="ระบบประเมินสมรรถนะ FC PN" allow="clipboard-read; clipboard-write"></iframe>
+<script>
+// Update only this value when the /exec deployment URL changes.
+const GAS_URL='https://script.google.com/macros/s/AKfycbyxyVQmKedOEF2q2dDxgMatzmXYZeGxo3fxs4ryYez3tWp4m0TnLSOdVgfoKADdeqXHDg/exec';
+const frame=document.getElementById('appFrame'),notice=document.getElementById('notice');
+const pages=['index','Dashboard','ReportDashboard','CommitteeSetup','EvaluationForm'];
+let user=null;try{user=JSON.parse(sessionStorage.getItem('FC_CURRENT_USER')||'null');}catch{}
+let bridge='',child=null,childOrigin='',timer;
+function persist(){try{if(user)sessionStorage.setItem('FC_CURRENT_USER',JSON.stringify(user));else sessionStorage.removeItem('FC_CURRENT_USER');}catch{}}
+function navigateTo(page){
+ if(!pages.includes(page))page='index';bridge=crypto.randomUUID();child=null;childOrigin='';notice.hidden=true;
+ const url=new URL(GAS_URL);url.searchParams.set('page',page);url.searchParams.set('bridge',bridge);url.searchParams.set('wrapperOrigin',location.origin);
+ history.replaceState(null,'','#'+page);frame.src=url.toString();clearTimeout(timer);
+ timer=setTimeout(()=>{if(!child){notice.textContent='ตรวจ URL /exec และ Deploy ไฟล์ Apps Script รุ่นใหม่ให้ครบ';notice.hidden=false;}},20000);
+}
+function trustedOrigin(origin){try{const u=new URL(origin);return u.protocol==='https:'&&(u.hostname==='script.google.com'||u.hostname.endsWith('.googleusercontent.com'));}catch{return false;}}
+window.addEventListener('message',event=>{
+ const d=event.data;if(!trustedOrigin(event.origin)||!d||d.bridge!==bridge)return;
+ if(d.type==='READY'){child=event.source;childOrigin=event.origin;clearTimeout(timer);notice.hidden=true;child.postMessage({type:'STATE',bridge,user},childOrigin);return;}
+ if(event.source!==child||event.origin!==childOrigin)return;
+ if(d.type==='SET_USER'&&d.user&&typeof d.user.username==='string'){user=d.user;persist();child.postMessage({type:'USER_SAVED',bridge},childOrigin);}
+ else if(d.type==='NAVIGATE'&&pages.includes(d.page))navigateTo(d.page);
+ else if(d.type==='LOGOUT'){user=null;persist();navigateTo('index');}
+});
+navigateTo(user?(pages.includes(location.hash.slice(1))&&location.hash.slice(1)!=='index'?location.hash.slice(1):'Dashboard'):'index');
+</script></body></html>
