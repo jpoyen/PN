@@ -2,7 +2,7 @@
 <style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f4f6f9;font-family:system-ui,sans-serif}#appFrame{position:fixed;inset:0;width:100%;height:100dvh;border:0;display:block}#notice{position:fixed;z-index:5;left:16px;right:16px;top:16px;background:#fff3cd;color:#664d03;padding:16px;border-radius:8px}#notice[hidden]{display:none}</style></head><body><div id="notice" hidden role="alert"></div><iframe id="appFrame" title="ระบบประเมินสมรรถนะ FC PN" allow="clipboard-read; clipboard-write"></iframe>
 <script>
 // Update only this value when the /exec deployment URL changes.
-const GAS_URL='https://script.google.com/macros/s/AKfycbyxyVQmKedOEF2q2dDxgMatzmXYZeGxo3fxs4ryYez3tWp4m0TnLSOdVgfoKADdeqXHDg/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbwPQZwmXDNOulFJb6evUjPA85N7nkb125cQrIAInScoZTbvwetPLkY_O_plmgU9b0zwcw/exec';
 const frame=document.getElementById('appFrame'),notice=document.getElementById('notice');
 const pages=['index','Dashboard','ReportDashboard','CommitteeSetup','EvaluationForm'];
 let user=null;try{user=JSON.parse(sessionStorage.getItem('FC_CURRENT_USER')||'null');}catch{}
